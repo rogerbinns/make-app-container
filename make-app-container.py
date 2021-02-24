@@ -767,6 +767,7 @@ if __name__ == "__main__":
             action="store_true",
             help="Enable host dbus connection (eg makes tray icons work")
         p.add_argument("--bind",
+                       default="",
                        help="One or more comma separated from " +
                        ", ".join(f"'{ k }': { v['description'] }"
                                  for k, v in BINDS.items()))
@@ -843,7 +844,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if getattr(args, "bind", None):
+    if hasattr(args, "bind"):
         args.bind = [a.strip() for a in args.bind.split(",")]
         for n in args.bind:
             if n not in BINDS:
