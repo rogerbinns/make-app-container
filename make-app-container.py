@@ -265,7 +265,7 @@ def genscript(options):
 
 # created with { shlex.join(sys.argv) }
 
-# !MARKER FOR MK-APP-CONTAINER UPDATE!  # when run with ++aptupdateall this script will be included
+# !MARKER FOR MAKE-APP-CONTAINER UPDATE!  # when run with ++aptupdateall this script will be included
 
 # edit this to taste
 config = { pprint.pformat(config, indent=4) }
@@ -689,7 +689,7 @@ def parse_args(config: dict, args: list):
 
 
 def getdb(config):
-    p = f"/run/user/{ getuid() }/mk-app-container/{ config['name'] }.lock"
+    p = f"/run/user/{ getuid() }/make-app-container/{ config['name'] }.lock"
     if not os.path.exists(os.path.dirname(p)):
         os.makedirs(os.path.dirname(p), exist_ok=True)
     db = sqlite3.connect(p, isolation_level=None)
@@ -708,7 +708,7 @@ def do_apt_stuff(config, args):
                 try:
                     for line in open(fn, "rt", encoding="iso-8859-1"):
                         if line.startswith(
-                                "# !MARKER FOR MK-APP-CONTAINER UPDATE!"):
+                                "# !MARKER FOR MAKE-APP-CONTAINER UPDATE!"):
                             oneofus = True
                             break
                 except Exception:
@@ -806,7 +806,7 @@ if __name__ == "__main__":
                    choices={"base", "minbase", "buildd"},
                    help="debootstrap variant [%(default)s]")
     p.add_argument("--deb-cache-dir",
-                   default=os.path.expanduser("~/.cache/mk-app-container"),
+                   default=os.path.expanduser("~/.cache/make-app-container"),
                    help="Cache dir for debs [%(default)s]")
     p.add_argument("--add-user",
                    default=getpass.getuser(),
