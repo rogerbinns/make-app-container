@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# https://github.com/rogerbinns/make-app-container
+
 import logging
 import os
 import sys
@@ -779,7 +781,10 @@ if __name__ == "__main__":
             default="~/.local/bin",
             help="Directory to create control script in [%(default)s]")
 
-    parser = argparse.ArgumentParser(description="Makes app containers")
+    parser = argparse.ArgumentParser(
+        description=
+        "Makes app containers https://github.com/rogerbinns/make-app-container"
+    )
     parser.set_defaults(func=lambda *_: parser.error("Expected sub command"))
 
     parser.add_argument('--log-level',
