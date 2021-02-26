@@ -124,7 +124,7 @@ def create(options):
         # gets the libs etc as a side effect
         pkgs.extend(["xterm", "dbus-x11"])
 
-    if options.gui_private:
+    if options.gui_private and options.gui_private_window_manager == "matchbox-window-manager":
         pkgs.append("matchbox-window-manager")
 
     for p in options.packages or []:
@@ -396,7 +396,7 @@ def getuid():
 
 
 def start_xephyr(config):
-    assert config["gui_private"]
+    assert config["gui-private"]
     dir = "/tmp/.X11-unix"
     name = "mac-" + config["name"]
     # cleanup
@@ -434,7 +434,7 @@ def start_xephyr(config):
 
 
 def get_xephyr_displaynum(config):
-    assert config["gui_private"]
+    assert config["gui-private"]
     dir = "/tmp/.X11-unix"
     name = "mac-" + config["name"]
 
@@ -448,7 +448,7 @@ def get_xephyr_displaynum(config):
 
 
 def stop_xephyr(config):
-    assert config["gui_private"]
+    assert config["gui-private"]
     dir = "/tmp/.X11-unix"
     name = "mac-" + config["name"]
 
@@ -477,7 +477,7 @@ def start_container(config, for_update=False):
             cmd.append("--bind=" + expanduser(config, BINDS[b]["folder"]))
     # gui
     if not for_update and config["gui"]:
-        if config["gui_private"]:
+        if config["gui-private"]:
             num = start_xephyr(config)
         else:
             # DISPLAY is thrown away when the script is invoked via pkexec so
@@ -597,7 +597,7 @@ def controlcode(config, args=None):
     db = getdb(config)
     if not is_running(config):
         start_container(config)
-        if config["gui-private-window-manager"]:
+        if config["gui-private"] and config["gui-private-window-manager"]:
             run_cmd(config, [config["gui-private-window-manager"]],
                     return_popen=True)
     if args["only"] == "start":
@@ -624,7 +624,7 @@ def controlcode(config, args=None):
             shutdown = False
 
         if shutdown or args["only"] == "stop":
-            if config["gui_private"]:
+            if config["gui-private"]:
                 stop_xephyr(config)
             stop_container(config)
 
