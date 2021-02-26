@@ -223,7 +223,8 @@ def create(options):
 
 def makescript(options):
     options.folder = os.path.abspath(options.folder)
-    if not os.path.isdir(options.folder):
+    # we may not have permissions to access the directory ...
+    if os.path.isfile(options.folder):
         sys.exit(f"{ options.folder } is not a directory")
     options.name = os.path.basename(options.folder)
     genscript(options)
