@@ -142,7 +142,7 @@ def create(options):
     # start the system
     cmd = ["systemd-nspawn", "-D", options.folder, "-b", "--console=read-only"]
 
-    nspawn = run(options, cmd, sudo=True, return_popen=True, wait_check=1.0)
+    nspawn = run(options, cmd, sudo=True, return_popen=True, wait_check=5.0)
 
     with nspawn:
 
