@@ -314,7 +314,7 @@ BINDS = {
     },
     "gitconfig": {
         "description": "git config",
-        "file-ro": "~/.gitconfig"
+        "folder-ro": "~/.gitconfig"
     },
     "documents": {
         "description": "documents",
@@ -475,7 +475,13 @@ def start_container(config, for_update=False):
     # binds
     if not for_update:
         for b in (config["bind"] or []):
-            cmd.append("--bind=" + expanduser(config, BINDS[b]["folder"]))
+            # although the key name is folder, files and paths all work
+            arg = "bind"
+            key = "folder"
+            if "folder-ro" in BINDS[b]:
+                arg = "bind-ro"
+                key = "folder-ro"
+            cmd.append(f"--{ arg }={ expanduser(config, BINDS[b][key]) }")
     # gui
     if not for_update and config["gui"]:
         if config["gui-private"]:
