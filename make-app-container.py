@@ -264,6 +264,8 @@ def genscript(options):
     op.append(
         f"""#!{ "/usr/bin/pkexec" if options.gui else "/usr/bin/env" } python3
 
+# Detailed doc at https://github.com/rogerbinns/make-app-container
+
 # created with { shlex.join(sys.argv) }
 
 # !MARKER FOR MAKE-APP-CONTAINER UPDATE!  # when run with ++aptupdateall this script will be included
@@ -326,41 +328,6 @@ BINDS = {
         "folder": "/dev/input",
     }
 }
-
-HELP = """
-The container is automatically started by this control script, and
-stopped after the program has run.  Arguments are passed inside.
-
-For example if you have "google-chrome" set to run inside then:
-
-  script --incognito http://www.example.com
-
-Will invoke google-chrome --incognito http://www.example.com inside
-
-The following are understood by thge script itself, all starting
-with ++ to avoid confusion with flags passed in.
-
-++show
-   Print out the commands being run
-
-++start / ++stop
-   Only start / stop the container, do not run anything
-
-++cmd
-   Instead of the configured command, run the rest of the arguments
-   as a command
-
-++aptupdate
-   Run the container with networking, and do updates
-
-++aptupdateall
-   Finds all the container scripts in this directory and runs
-   aptupdate in each
-
-++network on | off | separate
-   Override the network setting
-   
-"""
 
 
 def subrun(config: dict, cmd: list, return_popen=False, sudo=False, **kwargs):
@@ -692,7 +659,7 @@ def parse_args(config: dict, args: list):
     # do we have something to do?
     if res["only"] or res["aptupdate"] or res["aptupdateall"] or res["cmd"]:
         return res
-    sys.exit(HELP)
+    sys.exit("Specify a command to run inside the container")
 
 
 def getdb(config):
