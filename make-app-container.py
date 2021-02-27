@@ -387,17 +387,25 @@ def start_xephyr(config):
 
     cmd = [replace(c) for c in config["gui-private-start"]]
 
+    if os.getuid() == 0:
+        if "DISPLAY" not in os.environ:
+            # started by pkexec, no $DISPLAY
+            cmd = ["env", "DISPLAY=:0"] + cmd
+        # we don't want to run xephyr as root!
+        cmd = ["sudo", "-u", config["user"]] + cmd
+
     xephyr = subrun(config, cmd, return_popen=True)
 
-    while not os.path.exists(opj(
-            dir, "X" + str(num))) and xephyr.returncode is not None:
+    sockname = opj(dir, "X" + str(num))
+
+    while not os.path.exists(sockname) and xephyr.returncode is None:
         time.sleep(0.5)
 
     if xephyr.returncode is not None:
         sys.exit(
             f"Private X server exited code { xephyr.returncode }: { shlex.join(cmd) }"
         )
-    os.symlink(opj(dir, "X" + str(num)), opj(dir, name))
+    os.symlink("X" + str(num), opj(dir, name))
     return num
 
 
@@ -423,7 +431,7 @@ def stop_xephyr(config):
     num = get_xephyr_displaynum(config)
     os.remove(opj(dir, name))
 
-    pidfile = f"/tmp/.X{ num }.lock"
+    pidfile = f"/tmp/.X{ num }-lock"
     pid = int(open(pidfile, "rt").read().strip())
 
     os.kill(pid)
@@ -538,7 +546,7 @@ def run_cmd(config, args, **kwargs):
         "--send-sighup", "/usr/bin/sudo", "-u", config["user"], "/usr/bin/env"
     ]
     if config["gui"]:
-        cmd.append("DISPLAY=:0")
+        cmd.append("DISPLAY=unix/:0")
     if config["sound"]:
         cmd.append("PULSE_SERVER=unix:/run/user/host/pulse/native")
     if config["dbus"]:
