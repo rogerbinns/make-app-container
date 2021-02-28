@@ -145,8 +145,25 @@ Networking
 Deeper Examples
 ===============
 
-- steam
+Steam
+-----
 
-- vscode
+Visual Studio Code
+------------------
 
-- firefox
+We are going to run this in a private window, with no access to the display, sound etc
+using the default matchbox window manager.  Some dev packages are also installed.:
+
+  make-app-container create --gui-private --bind gitconfig --packages python3-dev,python3-pip,build-essential groovy ~/containers/vscode ~/Downloads/code_amd64.deb
+
+Now I can it with vscode.  Projects are bound into the container like this:
+
+  sudo machinectl bind --mkdir vscode ~/projects/example
+
+Emacs (text mode)
+-----------------
+
+
+
+IceWeasel
+---------
