@@ -36,10 +36,10 @@ ctl.!default {
 
 NETWORKD_CONF = """
 [Match]
-name=mv-*
+Name=mv-*
 
 [Network]
-DHCP=ipv4
+DHCP=yes
 """
 
 
@@ -200,11 +200,13 @@ def create(options):
 
             # systemd-networkd macvlan config
             with tempfile.NamedTemporaryFile("wt", prefix="mkcontainer") as tf:
+                fn = "/etc/systemd/network/make-app-container.network"
                 tf.write(NETWORKD_CONF)
                 tf.flush()
-                insidecmd("/usr/bin/mkdir", "-p", "/etc/systemd/networkd")
-                copyin(tf.name,
-                       "/etc/systemd/networkd/make-app-container.network")
+                insidecmd("/usr/bin/mkdir", "-p", "/etc/systemd/network")
+                copyin(tf.name, fn)
+                insidecmd("/usr/bin/chown", "root", fn)
+                insidecmd("/usr/bin/chmod", "744", fn)
 
             # copy deb file across and install
             if options.debs:
