@@ -435,7 +435,7 @@ def stop_xephyr(config):
     pidfile = f"/tmp/.X{ num }-lock"
     pid = int(open(pidfile, "rt").read().strip())
 
-    os.kill(pid)
+    os.kill(pid, signal.SIGTERM)
 
 
 def start_container(config, for_update=False):
