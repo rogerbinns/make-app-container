@@ -835,7 +835,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if hasattr(args, "bind"):
-        args.bind = [a.strip() for a in args.bind.split(",")]
+        args.bind = [a.strip()
+                     for a in args.bind.split(",")] if args.bind else []
         for n in args.bind:
             if n not in BINDS:
                 parser.error(f"Unknown bind '{ n }'")
@@ -852,6 +853,11 @@ if __name__ == "__main__":
 
     if hasattr(args, "gui_private"):
         args.gui = args.gui or args.gui_private
+
+    if hasattr(args, "debs"):
+        for deb in args.debs:
+            if not os.path.isfile(deb):
+                sys.exit(f"Deb file { deb } doesn't exist")
 
     logging.basicConfig(level=args.log_level,
                         format='%(levelname)s %(name)s %(message)s')
