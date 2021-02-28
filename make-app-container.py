@@ -2,19 +2,20 @@
 
 # https://github.com/rogerbinns/make-app-container
 
-import logging
-import os
-import sys
-import subprocess
 import getpass
-import tempfile
-import re
-import shlex
-import pprint
-import time
-import sqlite3
 import hashlib
 import json
+import logging
+import os
+import pprint
+import re
+import shlex
+import signal
+import sqlite3
+import subprocess
+import sys
+import tempfile
+import time
 
 # installed in container to redirect everything to pulseaudio
 PULSE_SHIM = """
