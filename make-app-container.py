@@ -494,12 +494,15 @@ def start_container(config, for_update=False):
         pass
     elif config["network"] == "off":
         cmd.append("-p")
+    elif config["network"] == "nat":
+        cmd.append("--network-veth")
     else:
         assert config["network"] == "separate"
         for netif in json.loads(
                 subrun(config, ["ip", "-o", "-j", "link", "show"],
                        capture_output=True).stdout):
-            if "UP" in netif["flags"] and "LOOPBACK" not in netif["flags"]:
+            if "UP" in netif["flags"] and "LOOPBACK" not in netif[
+                    "flags"] and "link_netnsid" not in netif:
                 cmd.append(f"--network-macvlan={ netif['ifname'] }")
     # webcam
     if not for_update and config["webcam"] and os.path.exists("/dev/v4l"):
@@ -655,13 +658,13 @@ def parse_args(config: dict, args: list):
                 borken = "(No value)"
             else:
                 net = args.pop(0)
-                if net not in ("on", "off", "separate"):
+                if net not in ("on", "off", "separate", "nat"):
                     borken = f"Unknown '{ net }'"
                 else:
                     config["network"] = net
             if borken:
                 sys.exit(
-                    f"++network not understood.  Choose one of on, off, separate. { borken }"
+                    f"++network not understood.  Choose one of on, off, separate, nat. { borken }"
                 )
         else:
             break
@@ -721,9 +724,9 @@ if __name__ == "__main__":
         p.add_argument(
             "--network",
             default="on",
-            choices={"none", "on", "separate"},
+            choices={"none", "on", "separate", "nat"},
             help=
-            "none: only unshared loopback, on: share host networks, separate: use networks to get own addresses. [%(default)s]"
+            "none: only unshared loopback, on: share host networks, separate: use host networks to get own addresses, nat: own network behind this host but with internet access. [%(default)s]"
         )
         p.add_argument("--gui",
                        default=False,
