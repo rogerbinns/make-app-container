@@ -128,8 +128,11 @@ activity.  (Fixing this was one of several motivations behind
 Wayland.)
 
 You can run a nested X environment as a window inside your existing
-desktop. Install the package for Xephyr on your host.  It works well
-enough but it not perfect.
+desktop. Install the package for Xephyr on your host, to provide the
+window.
+
+The networking option has to be anything except "on".  (The abstract
+namespace for Unix domain sockets is the cause.)
 
 
 Networking

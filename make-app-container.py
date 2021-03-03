@@ -237,7 +237,7 @@ def makescript(options):
 
 XEPHYR = [
     "Xephyr", "-resizeable", "-title", "%%TITLE%%", "-no-host-grab",
-    "-sw-cursor", ":%%NUM%%"
+    "-host-cursor", ":%%NUM%%"
 ]
 
 
@@ -411,6 +411,8 @@ def start_xephyr(config):
             f"Private X server exited code { xephyr.returncode }: { shlex.join(cmd) }"
         )
     os.symlink("X" + str(num), opj(dir, name))
+    if not os.getuid():
+        os.chown(opj(dir, name), getuid(), -1, follow_symlinks=False)
     return num
 
 
@@ -419,11 +421,11 @@ def get_xephyr_displaynum(config):
     dir = "/tmp/.X11-unix"
     name = "mac-" + config["name"]
 
-    if not os.path.exists(opj(dir, name)):
+    try:
+        link = os.readlink(opj(dir, name))
+        assert link.startswith("X")
+    except Exception:
         sys.exit("Private X server not found")
-
-    link = os.readlink(opj(dir, name))
-    assert link.startswith("X")
 
     return int(link[1:])
 
@@ -432,7 +434,6 @@ def stop_xephyr(config):
     assert config["gui-private"]
     dir = "/tmp/.X11-unix"
     name = "mac-" + config["name"]
-
     num = get_xephyr_displaynum(config)
     os.remove(opj(dir, name))
 
@@ -855,6 +856,8 @@ if __name__ == "__main__":
 
     if hasattr(args, "gui_private"):
         args.gui = args.gui or args.gui_private
+        if args.network == "on":
+            parser.error("gui-private requires network setting other than on")
 
     if hasattr(args, "debs"):
         for deb in args.debs:
