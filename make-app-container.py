@@ -138,7 +138,9 @@ def create(options):
     cmd.append(options.folder)
 
     # create the chroot
-    run(options, cmd, sudo=True)
+    res = run(options, cmd, sudo=True)
+    if res.returncode != 0:
+        sys.exit("debootstrap failed")
 
     # start the system
     cmd = ["systemd-nspawn", "-D", options.folder, "-b", "--console=read-only"]
