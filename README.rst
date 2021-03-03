@@ -105,13 +105,13 @@ the first options supplied.
     You can use machinectl shell to get a shell inside the running
     container as root or user.
 
-++network on | off | separate
+++network on | off | separate | nat
 
     Overrides the network setting when starting the container
 
 ++aptupdate
 
-    Starts the container with networking and performs apt to 
+    Starts the container with networking on and performs apt to
     download and install updates, then stops the container.
 
 ++aptupdateall
@@ -138,12 +138,51 @@ namespace for Unix domain sockets is the cause.)
 Networking
 ==========
 
-- always get private loopback
+The container will always have a private loopback interface (usually named **lo**
+with an address of 127.0.0.1).  That means software using loopback in the container
+will not clash with the host.
 
-- on sharing explanation
+off
+---
 
-- separate macvlan explanation
-    bridge howto
+Only the loopback inteface will be available, and no network traffic can enter or leave
+the container.
+
+on
+--
+
+The container will share the host's network interfaces (except loopback).  This works
+great for apps that make connections.  But apps that listen on the network within
+the container will clash with the same on the host due to the sharing.  
+
+This setting makes it impossible to tell if an app is running on the host, or in a
+container.
+
+nat
+---
+
+A virtual network interface is created for the container so it can run
+any network services without clashes.  Traffic from that interface
+goes to the host, which then uses network address translation to
+forward on to the real network.  Listening services can be contacted
+by the host, but not the rest of the network.
+
+You need systemd-networkd running on your host for the host side setup
+to be done automatically.
+
+separate
+--------
+
+A new mac address is added to each existing up network interface and
+used by the container (macvlan).  The container is configured to use
+DHCP on those to get its own IP address.  The container has direct
+access to the networks as a result, as does the network to the
+container.
+
+Note that the host and container will not be able to directly talk to
+each other (a bridge has to be setup).  Additional mac addresses can't
+be added to wifi interfaces.
+
 
 Deeper Examples
 ===============
