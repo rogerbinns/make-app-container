@@ -425,7 +425,8 @@ def get_xephyr_displaynum(config):
         link = os.readlink(opj(dir, name))
         assert link.startswith("X")
     except Exception:
-        sys.exit("Private X server not found")
+        # probably already exited for other reasons
+        return -1
 
     return int(link[1:])
 
@@ -435,7 +436,12 @@ def stop_xephyr(config):
     dir = "/tmp/.X11-unix"
     name = "mac-" + config["name"]
     num = get_xephyr_displaynum(config)
-    os.remove(opj(dir, name))
+    try:
+        os.remove(opj(dir, name))
+    except Exception:
+        pass
+    if num < 0:
+        return
 
     pidfile = f"/tmp/.X{ num }-lock"
     pid = int(open(pidfile, "rt").read().strip())
