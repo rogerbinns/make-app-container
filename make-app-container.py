@@ -550,7 +550,7 @@ def stop_container(config):
     subrun(config, cmd, sudo=True)
 
 
-def run_cmd(config, args, **kwargs):
+def run_cmd(config, args, *, maintenance=False, **kwargs):
     # unfortunately we have to use sudo to become the user because
     # systemd-run won't let us start stuff as a non-root user inside
     # the container, while machinectl shell will but doesn't return
@@ -558,27 +558,22 @@ def run_cmd(config, args, **kwargs):
     cmd = [
         "systemd-run", "-M", config['name'], "-q",
         "--pipe" if config["gui"] else "--pty", "--wait", "--collect",
-        "--send-sighup", "/usr/bin/sudo", "-u", config["user"], "/usr/bin/env"
+        "--send-sighup"
     ]
-    if config["gui"]:
+    if not maintenance:
+        cmd.extend(("/usr/bin/sudo", "-u", config["user"]))
+    cmd.append("/usr/bin/env")
+
+    if config["gui"] and not maintenance:
         cmd.append("DISPLAY=unix/:0")
-    if config["sound"]:
+    if config["sound"] and not maintenance:
         cmd.append("PULSE_SERVER=unix:/run/user/host/pulse/native")
-    if config["dbus"]:
+    if config["dbus"] and not maintenance:
         cmd.append("DBUS_SESSION_ADDRESS=unix:path=/run/user/host/dbus")
     if os.environ.get("TERM"):
         cmd.append(f"TERM={ os.environ['TERM'] }")
     cmd.extend(args)
     return subrun(config, cmd, sudo=True, **kwargs)
-
-
-def run_update(config):
-    cmd = ["machinectl", "shell", config["name"], "/usr/bin/apt", "update"]
-    subrun(config, cmd, sudo=True)
-    cmd = [
-        "machinectl", "shell", config["name"], "/usr/bin/apt", "dist-upgrade"
-    ]
-    subrun(config, cmd, sudo=True)
 
 
 def controlcode(config, args=None):
@@ -711,14 +706,20 @@ def do_apt_stuff(config, args):
                 except Exception:
                     pass
             if oneofus:
-                print(fn)
+                print("Update", fn)
                 # this avoids pkexec
                 subrun(config, [sys.executable, fn, "++aptupdate"])
+                print()
     else:
         assert args["aptupdate"]
         if is_running(config):
             sys.exit(
                 f"{ config['name'] } is already running - apt update skipped")
+        start_container(config, for_update=True)
+        run_cmd(config, ["apt", "update"], maintenance=True)
+        run_cmd(config, ["apt", "upgrade"], maintenance=True)
+
+        stop_container(config)
 
 
 ## CONTROL CODE END
