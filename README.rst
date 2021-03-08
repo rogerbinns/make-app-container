@@ -19,14 +19,12 @@ the supplied chrome package inside.  It is only given access to your
 screen (--gui) and your host Downloads directory is made available
 inside.:
 
-    make-app-container.py create --gui focal --bind downloads \\ 
-        --run google-chrome ~/containers/chrome-container \\ 
-        google-chrome-stable_current_amd64.deb
+    ``make-app-container.py create --gui focal --bind downloads --run google-chrome ~/containers/chrome-container google-chrome-stable_current_amd64.deb``
 
 To run, simply run the created control script which should be on your
 $PATH.:
 
-   chrome-container --incognito www.example.com
+   ``chrome-container --incognito www.example.com``
 
 There are flags to expose gui (X), 3d (mesa/dri), sound (pulseaudio),
 webcams (v4l) etc, and bind host folders inside, such as ~/Downloads
@@ -84,19 +82,19 @@ script is running.
 Options
 -------
 
-The control script can take additional options.  These start with ++
+The control script can take additional options.  These start with ``++``
 to distinguish them from options going into the container, and must be
 the first options supplied.
 
-++show:
+``++show``:
 
     Shows the commands the script runs
 
-++start / ++stop:
+``++start`` / ``++stop``:
 
     Only start or stop the container.  Do not run anything.  
 
-++cmd:
+``++cmd``:
 
     Runs the remaining arguments as the command instead of what 
     was configured with --run
@@ -104,16 +102,16 @@ the first options supplied.
     You can use machinectl shell to get a shell inside the running
     container as root or user.
 
-++network on | off | separate | nat:
+``++network on`` | ``off`` | ``separate`` | ``nat``:
 
     Overrides the network setting when starting the container
 
-++aptupdate:
+``++aptupdate``:
 
     Starts the container with networking on and performs apt to
     download and install updates, then stops the container.
 
-++aptupdateall:
+``++aptupdateall``:
 
     Finds all control scripts in the same directory as this one
     (there is a marker) and runs ++aptupdate with each one
@@ -137,7 +135,7 @@ Networking
 ==========
 
 The container will always have a private loopback interface (usually
-named **lo** with an address of 127.0.0.1).  That means software using
+named **lo** with an address of ``127.0.0.1``).  That means software using
 loopback in the container will not clash with the host.
 
 off
@@ -188,27 +186,39 @@ Deeper Examples
 Steam
 -----
 
-Visual Studio Code
-------------------
+Steam on Ubuntu 20.10 with graphics, 3d, sound, joysticks etc.:
+
+  ``make-app-container create --gui --mesa --sound --webcam --bind steam --run steam groovy ~/containers/steam ~/Downloads/steam_latest.deb``
+
+On starting steam first time it wanted a password to install packages.
+We do so manually since there is no way (deliberately) for the
+container user to become root.  We also need to enable 32 bit packages:
+
+  ``sudo machinectl shell steam /bin/bash -c 'dpkg --add-architecture i386 ; apt update ; apt install libgl1-mesa-dri:i386 libgl1:i386 libc6:i386 xdg-desktop-portal xdg-desktop-portal-gtk``
+
+Visual Studio Code (private gui)
+--------------------------------
 
 We are going to run this in a private window, with no access to the
 display, sound etc using the default matchbox window manager.  Some
-dev packages are also installed.:
+dev packages are also installed (build-essential and git) while
+libasound is added because code depends on it but doesn't not declare
+the dependency.:
 
-  make-app-container create --gui-private --bind gitconfig --packages build-essential --network nat groovy ~/containers/vscode ~/Downloads/code_amd64.deb
+  ``make-app-container create --gui-private --bind gitconfig --packages build-essential,git,libasound2 --network nat --run code groovy ~/containers/vscode ~/Downloads/code_amd64.deb``
 
 Now I can it with *vscode*.  Projects are bound into the container like
 this:
 
-  sudo machinectl bind --mkdir vscode ~/projects/example
+  ``sudo machinectl bind --mkdir vscode ~/projects/example``
 
 Emacs (text mode)
 -----------------
 
 
 
-IceWeasel
----------
+IceWeasel (Debian)
+------------------
 
 KDE in a window
 ---------------
