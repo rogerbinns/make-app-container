@@ -866,7 +866,7 @@ if __name__ == "__main__":
 
     if hasattr(args, "gui_private"):
         args.gui = args.gui or args.gui_private
-        if args.network == "on":
+        if args.network == "on" and args.gui_private:
             parser.error("gui-private requires network setting other than on")
 
     if hasattr(args, "debs"):
