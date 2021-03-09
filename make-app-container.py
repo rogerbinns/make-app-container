@@ -444,8 +444,12 @@ def stop_xephyr(config):
         return
 
     pidfile = f"/tmp/.X{ num }-lock"
-    pid = int(open(pidfile, "rt").read().strip())
+    try:
+        pid = int(open(pidfile, "rt").read().strip())
+    except FileNotFoundError:
+        return
 
+    assert pid > 0
     os.kill(pid, signal.SIGTERM)
 
 
