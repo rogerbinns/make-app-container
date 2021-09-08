@@ -3,13 +3,14 @@
 What does it do?
 ================
 
+This is an experiment. You should consider docker or podman as better alternatives.
+This is a closer alternative to tools like firejail.
+
 This script creates a container, and then adds a control script in
 ~/.local/bin which auto-starts the container, runs an app inside, and
 stops the container afterwards if not still in use.  It is like the
 container is local host program.
 
-You should also consider docker or podman.  This is a closer
-alternative to tools like firejail.
 
 Example
 =======
